@@ -34,6 +34,19 @@ RUN apt-get install -y bash-completion build-essential cmake cmake-curses-gui co
 # Install magic-wormwhole to get things from one computer to another safely
 RUN apt install -y magic-wormhole
 
+# Install Oh My ZSH Powerlvl10k
+UN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+ENV SHELL=zsh
+RUN echo "alias gits='git status'" >> $HOME/.zshrc
+RUN echo "alias ls='ls -GFh'" >> $HOME/.zshrc
+ENV NVM_DIR="$HOME/.nvm"
+RUN echo ". ~/.nvm/nvm.sh" >> $HOME/.zshrc
+RUN sed -i 's/plugins=(git)/plugins=(git npm docker-compose docker)/' $HOME/.zshrc
+RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+RUN sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="powerlevel10k\/powerlevel10k"/' $HOME/.zshrc
+RUN wget https://gist.githubusercontent.com/trumbitta/dc0c235832c5851813746d5886e40c56/raw/4663769f792bc9990b6b18242819b37a89a8ce53/.p10k.zsh -O $HOME/.p10k.zsh
+RUN echo "[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh" >> $HOME/.zshrc
+
 # Install noVNC
 RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
     git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify && \
@@ -76,5 +89,5 @@ EXPOSE 5901 6080 10000/tcp 10000/udp
 RUN rm -Rf /var/lib/apt/lists/*
 
 # Launch bash from /workspace
-WORKDIR /workspace
+WORKDIR /root
 CMD ["bash"]
